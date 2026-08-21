@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POps Daily Dashboard — 2026-08-21</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #1a1a1a; padding: 16px; line-height: 1.5; }
+  .container { max-width: 1400px; margin: 0 auto; }
+  
+  /* Header */
+  .header { margin-bottom: 20px; }
+  .header h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .header .meta { color: #666; font-size: 13px; }
+  .header .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; margin-left: 8px; }
+  .pill.daily { background: #dbeafe; color: #1e40af; }
+  .pill.auto { background: #dcfce7; color: #166534; }
+  
+  /* Delta Banner */
+  .delta-banner { background: white; border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); display: flex; gap: 24px; flex-wrap: wrap; align-items: center; }
+  .delta-item { display: flex; align-items: center; gap: 8px; }
+  .delta-item .label { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+  .delta-item .value { font-size: 18px; font-weight: 700; }
+  .delta-item .change { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 12px; }
+  .change.up { background: #fee2e2; color: #dc2626; }
+  .change.down { background: #dcfce7; color: #16a34a; }
+  .change.neutral { background: #f3f4f6; color: #666; }
+  
+  /* Grid */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .panel { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .panel h2 { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: #374151; display: flex; align-items: center; gap: 8px; }
+  .panel h2 .icon { font-size: 18px; }
+  
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 8px 10px; border-bottom: 2px solid #e5e7eb; color: #6b7280; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  td { padding: 9px 10px; border-bottom: 1px solid #f3f4f6; }
+  tr:hover td { background: #fafafa; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .highlight { font-weight: 600; }
+  .dim { color: #9ca3af; }
+  
+  /* Badges */
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+  .badge.red { background: #fee2e2; color: #991b1b; }
+  .badge.yellow { background: #fef3c7; color: #92400e; }
+  .badge.green { background: #dcfce7; color: #166534; }
+  .badge.gray { background: #f3f4f6; color: #6b7280; }
+  
+  /* Progress bars */
+  .progress-bar { height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; margin-top: 3px; }
+  .progress-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+  .progress-fill.red { background: #ef4444; }
+  .progress-fill.yellow { background: #f59e0b; }
+  .progress-fill.green { background: #22c55e; }
+  .progress-fill.blue { background: #3b82f6; }
+  
+  /* Mini charts (sparklines) */
+  .sparkline { display: flex; align-items: flex-end; height: 30px; gap: 2px; padding: 4px 0; }
+  .spark-bar { flex: 1; border-radius: 1px; min-height: 2px; }
+  .spark-bar.sla { background: #3b82f6; }
+  .spark-bar.csat { background: #10b981; }
+  .spark-bar.vol { background: #8b5cf6; }
+  .spark-bar.current { background: #f59e0b; }
+  
+  /* Delta cells */
+  .delta { font-size: 11px; font-weight: 600; }
+  .delta.pos { color: #16a34a; }
+  .delta.neg { color: #dc2626; }
+  .delta.neutral { color: #9ca3af; }
+  
+  /* Narrative */
+  .narrative { background: #eff6ff; border-left: 3px solid #3b82f6; padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 12px; color: #1e40af; margin-top: 12px; line-height: 1.5; }
+  .narrative.warning { background: #fef3c7; border-left-color: #f59e0b; color: #92400e; }
+  .narrative.success { background: #dcfce7; border-left-color: #22c55e; color: #166534; }
+  
+  /* Full width panel */
+  .full-width { grid-column: 1 / -1; }
+  
+  /* Trend table */
+  .trend-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f3f4f6; }
+  .trend-label { font-size: 12px; font-weight: 500; color: #374151; width: 80px; flex-shrink: 0; }
+  .trend-spark { flex: 1; height: 28px; display: flex; align-items: flex-end; gap: 2px; }
+  .trend-spark-bar { flex: 1; border-radius: 1px; min-height: 2px; }
+  .trend-value { font-size: 13px; font-weight: 600; width: 50px; text-align: right; flex-shrink: 0; }
+  .trend-delta { font-size: 11px; width: 50px; text-align: right; flex-shrink: 0; }
+  
+  /* Agent queue table compact */
+  .agent-queue .name { font-weight: 500; }
+  .agent-queue .queue-bar { display: flex; height: 18px; border-radius: 4px; overflow: hidden; margin-top: 2px; }
+  .agent-queue .queue-segment { height: 100%; }
+  .agent-queue .queue-segment.new { background: #22c55e; }
+  .agent-queue .queue-segment.week { background: #f59e0b; }
+  .agent-queue .queue-segment.month { background: #ef4444; }
+  .agent-queue .queue-segment.old { background: #7c3aed; }
+  
+  /* Responsive */
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  
+  /* Section divider */
+  .section-header { grid-column: 1 / -1; margin: 8px 0 0 0; }
+  .section-header h2 { font-size: 18px; font-weight: 700; color: #1a1a1a; margin-bottom: 0; }
+  .section-header p { font-size: 13px; color: #666; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>📊 POps Daily Dashboard</h1>
+    <p class="meta">Friday, August 21, 2026 <span class="pill daily">DAILY</span> <span class="pill auto">AUTO-GENERATED</span></p>
+  </div>
+
+  <!-- Delta Banner: What Changed Since Yesterday -->
+  <div class="delta-banner">
+    <div class="delta-item">
+      <span class="label">Backlog</span>
+      <span class="value">138</span>
+      <span class="change up">+13</span>
+    </div>
+    <div class="delta-item">
+      <span class="label">New CSAT</span>
+      <span class="value">0</span>
+      <span class="change neutral">No new</span>
+    </div>
+    <div class="delta-item">
+      <span class="label">SLA (MTD)</span>
+      <span class="value">58.4%</span>
+      <span class="change neutral">Combined</span>
+    </div>
+    <div class="delta-item">
+      <span class="label">Cases Closed (MTD)</span>
+      <span class="value">2,281</span>
+      <span class="change neutral">POps: 47.8%</span>
+    </div>
+  </div>
+
+  <!-- TOP ROW: Current State -->
+  <div class="grid">
+    
+    <!-- SLA by Region -->
+    <div class="panel">
+      <h2><span class="icon">🎯</span>SLA Achievement (MTD) vs 80% Target</h2>
+      <table>
+        <tr>
+          <th>Region</th>
+          <th class="num">Within</th>
+          <th class="num">Total</th>
+          <th class="num">%</th>
+          <th>Status</th>
+        </tr>
+        
+    <tr><td class="highlight">AMER</td><td class="num">242</td><td class="num">395</td><td class="num">61.3%</td><td><span class="badge yellow">At Risk</span></td></tr>
+    <tr><td class="highlight">APJC</td><td class="num">63</td><td class="num">141</td><td class="num">44.7%</td><td><span class="badge red">Behind</span></td></tr>
+    <tr><td class="highlight">EMEA</td><td class="num">118</td><td class="num">188</td><td class="num">62.8%</td><td><span class="badge yellow">At Risk</span></td></tr>
+    <tr style="border-top:2px solid #e5e7eb"><td class="highlight">Combined</td><td class="num">423</td><td class="num">724</td><td class="num highlight">58.4%</td><td><span class="badge yellow">At Risk</span></td></tr>
+  
+      </table>
+      <div class="narrative">
+        <strong>Context:</strong> August is on pace to be the best SLA month since July 2025 (64.1%). Combined SLA has climbed from 45.6% in Jan to 58.4% now. APJC remains the weakest at 44.7%, 35pp below target.
+      </div>
+    </div>
+
+    <!-- CSAT by Region -->
+    <div class="panel">
+      <h2><span class="icon">😊</span>CSAT (Top-2 Box, 5-Point Scale)</h2>
+      <table>
+        <tr>
+          <th>Region</th>
+          <th class="num">Good</th>
+          <th class="num">Bad</th>
+          <th class="num">%</th>
+          <th>Status</th>
+        </tr>
+        <tr><td class="highlight">AMER</td><td class="num">44</td><td class="num">9</td><td class="num">83.0%</td><td><span class="badge red">Behind</span></td></tr>
+<tr><td class="highlight">APJC</td><td class="num">17</td><td class="num">3</td><td class="num">85.0%</td><td><span class="badge yellow">At Risk</span></td></tr>
+<tr><td class="highlight">EMEA</td><td class="num">28</td><td class="num">4</td><td class="num">87.5%</td><td><span class="badge yellow">At Risk</span></td></tr>
+<tr style="border-top:2px solid #e5e7eb"><td class="highlight">Combined</td><td class="num">89</td><td class="num">16</td><td class="num highlight">84.8%</td><td><span class="badge red">Behind</span></td></tr>
+      </table>
+      <div class="narrative">
+        <strong>Note:</strong> August switched from binary (happy/sad) to 5-point scale. Target is 90% top-2 box. Jan–Mar binary data (97.7%, 92.9%, 94.8%) is not directly comparable. Current 84.8% is 5.2pp below target.
+      </div>
+    </div>
+
+    <!-- Active Queue by Agent -->
+    <div class="panel">
+      <h2><span class="icon">👤</span>Active Queue by Agent (138 open)</h2>
+      <table>
+        <tr>
+          <th>Agent</th>
+          <th class="num">New</th>
+          <th class="num">1-7d</th>
+          <th class="num">7-30d</th>
+          <th class="num">>30d</th>
+          <th class="num">Total</th>
+        </tr>
+        <tr><td class="name">Unassigned <span class="delta neg">+16</span></td><td class="num">35</td><td class="num">0</td><td class="num">2</td><td class="num">0</td><td class="num highlight">37</td></tr>
+<tr><td class="name">aarchab <span class="delta neg">+4</span></td><td class="num">4</td><td class="num">12</td><td class="num">2</td><td class="num">0</td><td class="num highlight">18</td></tr>
+<tr><td class="name">Alyssa C. Castañeda</td><td class="num">0</td><td class="num">2</td><td class="num">1</td><td class="num">1</td><td class="num highlight">4</td></tr>
+<tr><td class="name">Catarina Salvador <span class="delta pos">-1</span></td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num">1</td><td class="num highlight">3</td></tr>
+<tr><td class="name">Daniel Seo</td><td class="num">3</td><td class="num">2</td><td class="num">7</td><td class="num">0</td><td class="num highlight">12</td></tr>
+<tr><td class="name">Hannah MacKenzie <span class="delta neg">+1</span></td><td class="num">2</td><td class="num">2</td><td class="num">3</td><td class="num">0</td><td class="num highlight">7</td></tr>
+<tr><td class="name">Holly Thompson</td><td class="num">0</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num highlight">1</td></tr>
+<tr><td class="name">Kayla Marshalleck</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">1</td><td class="num highlight">1</td></tr>
+<tr><td class="name">Kuan Lin <span class="delta pos">-3</span></td><td class="num">5</td><td class="num">4</td><td class="num">2</td><td class="num">1</td><td class="num highlight">12</td></tr>
+<tr><td class="name">Ludmilla Jestin <span class="delta pos">-1</span></td><td class="num">0</td><td class="num">0</td><td class="num">1</td><td class="num">0</td><td class="num highlight">1</td></tr>
+<tr><td class="name">Luke Harris <span class="delta pos">-2</span></td><td class="num">2</td><td class="num">2</td><td class="num">0</td><td class="num">0</td><td class="num highlight">4</td></tr>
+<tr><td class="name">Mariana Gonçalves <span class="delta pos">-1</span></td><td class="num">4</td><td class="num">2</td><td class="num">1</td><td class="num">0</td><td class="num highlight">7</td></tr>
+<tr><td class="name">Marisa Gonçalves</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">1</td><td class="num highlight">1</td></tr>
+<tr><td class="name">Qian Lin Goh <span class="delta neg">+1</span></td><td class="num">1</td><td class="num">2</td><td class="num">7</td><td class="num">0</td><td class="num highlight">10</td></tr>
+<tr><td class="name">Samantha Meza Herrera <span class="delta neg">+5</span></td><td class="num">5</td><td class="num">2</td><td class="num">0</td><td class="num">0</td><td class="num highlight">7</td></tr>
+<tr><td class="name">Selina Bellin <span class="delta pos">-2</span></td><td class="num">2</td><td class="num">1</td><td class="num">2</td><td class="num">0</td><td class="num highlight">5</td></tr>
+<tr><td class="name">Shilpi Sharma</td><td class="num">0</td><td class="num">0</td><td class="num">1</td><td class="num">0</td><td class="num highlight">1</td></tr>
+<tr><td class="name">Susana Napoles</td><td class="num">0</td><td class="num">6</td><td class="num">1</td><td class="num">0</td><td class="num highlight">7</td></tr>
+      </table>
+    </div>
+
+    <!-- POps vs Non-POps Volume -->
+    <div class="panel">
+      <h2><span class="icon">📊</span>Cases Closed by Queue (August MTD)</h2>
+      <table>
+        <tr>
+          <th>Queue</th>
+          <th class="num">Closed</th>
+          <th class="num">% of Total</th>
+        </tr>
+        
+    <tr>
+      <td>AMER POps</td>
+      <td class="num">581</td>
+      <td class="num">25.5%</td>
+    </tr>
+  
+
+    <tr>
+      <td>EMEA POps</td>
+      <td class="num">301</td>
+      <td class="num">13.2%</td>
+    </tr>
+  
+
+    <tr>
+      <td>APJC POps</td>
+      <td class="num">209</td>
+      <td class="num">9.2%</td>
+    </tr>
+  
+
+    <tr style="background:#f0f9ff">
+      <td class="highlight">POps Total</td>
+      <td class="num">1091</td>
+      <td class="num">47.8%</td>
+    </tr>
+  
+
+    <tr>
+      <td>Non-POps</td>
+      <td class="num">1190</td>
+      <td class="num">52.2%</td>
+    </tr>
+  
+      </table>
+      <div class="narrative">
+        <strong>Trend:</strong> POps closes ~48% of all People Team cases. Remainder handled by Payroll, Benefits, Stock Admin, Mobility, etc. POps share has ranged from 32% (July) to 50% (May) this year.
+      </div>
+    </div>
+  </div>
+
+  <!-- MIDDLE SECTION: What's Changed (Delta Since Yesterday) -->
+  <div class="grid">
+    <div class="panel full-width">
+      <h2><span class="icon">📈</span>What's Changed Since Yesterday</h2>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px;">
+        
+        <!-- Queue Size Changes -->
+        <div>
+          <h3 style="font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 12px;">Queue Size Changes</h3>
+          <table style="font-size: 12px;">
+            <tr><th>Agent</th><th class="num">Yesterday</th><th class="num">Today</th><th class="num">Δ</th></tr>
+            <tr><td>Unassigned</td><td class="num">21</td><td class="num">37</td><td class="num delta neg">+16</td></tr>
+<tr><td>aarchab</td><td class="num">14</td><td class="num">18</td><td class="num delta neg">+4</td></tr>
+<tr><td>Catarina Salvador</td><td class="num">4</td><td class="num">3</td><td class="num delta pos">-1</td></tr>
+<tr><td>Hannah MacKenzie</td><td class="num">6</td><td class="num">7</td><td class="num delta neg">+1</td></tr>
+<tr><td>Kuan Lin</td><td class="num">15</td><td class="num">12</td><td class="num delta pos">-3</td></tr>
+<tr><td>Ludmilla Jestin</td><td class="num">2</td><td class="num">1</td><td class="num delta pos">-1</td></tr>
+          </table>
+        </div>
+        
+        <!-- Aging Alert -->
+        <div>
+          <h3 style="font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 12px;">Aging Alert (>30 Days)</h3>
+          <table style="font-size: 12px;">
+            <tr><th>Agent</th><th class="num">>30d</th><th>Status</th></tr>
+            <tr><td>Alyssa C. Castañeda</td><td class="num">1</td><td><span class="badge red">Action</span></td></tr>
+<tr><td>Catarina Salvador</td><td class="num">1</td><td><span class="badge red">Action</span></td></tr>
+<tr><td>Kayla Marshalleck</td><td class="num">1</td><td><span class="badge red">Action</span></td></tr>
+<tr><td>Kuan Lin</td><td class="num">1</td><td><span class="badge red">Action</span></td></tr>
+<tr><td>Marisa Gonçalves</td><td class="num">1</td><td><span class="badge red">Action</span></td></tr>
+          </table>
+          <div class="narrative success">No agents have tickets &gt;30 days old today.</div>
+        </div>
+        
+        <!-- POps Group Backlog Delta -->
+        <div>
+          <h3 style="font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 12px;">POps Group Backlog</h3>
+          <table style="font-size: 12px;">
+            <tr><th>Group</th><th class="num">Yesterday</th><th class="num">Today</th><th class="num">Δ</th></tr>
+            <tr><td>AMER POps</td><td class="num">56</td><td class="num">68</td><td class="num delta neg">+12</td></tr>
+<tr><td>APJC POps</td><td class="num">45</td><td class="num">46</td><td class="num delta neg">+1</td></tr>
+<tr><td>EMEA POps</td><td class="num">24</td><td class="num">24</td><td class="num delta neutral">0</td></tr>
+          </table>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM SECTION: YTD Monthly Trends -->
+  <div class="section-header">
+    <h2>📅 YTD Monthly Performance Trends</h2>
+    <p>Historical view to put recent performance in context</p>
+  </div>
+  
+  <div class="grid">
+    
+    <!-- SLA Trend -->
+    <div class="panel">
+      <h2><span class="icon">🎯</span>SLA Achievement by Month (20-Month Trend)</h2>
+      <div style="margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #9ca3af; margin-bottom: 4px;">
+          <span>Jan 2025</span>
+          <span style="color: #dc2626; font-weight: 600;">── 80% Target</span>
+          <span>Aug 2026 (MTD)</span>
+        </div>
+        <div style="background: #f9fafb; border-radius: 8px; padding: 12px;">
+          <svg width="100%" height="120" viewBox="0 0 500 120" style="overflow:visible">
+      <line x1="40" y1="34" x2="470" y2="34" stroke="#dc2626" stroke-width="1" stroke-dasharray="5,5" opacity="0.5"/>
+      <polyline points="40,43.46774193548387 75.83333333333333,40.79632465543644 111.66666666666666,39.778106508875744 147.5,41.825842696629216 183.33333333333331,41.6125 219.16666666666669,44.478897502153316 255,45.11316010058676 290.83333333333337,55.81699346405229 326.66666666666663,50.68412162162162 362.5,56.92617449664429 398.33333333333337,57.96191819464034 434.16666666666663,63.2824427480916 470,49.10220994475138" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="40" cy="43.46774193548387" r="3" fill="#3b82f6" stroke="white" stroke-width="2"/>
+<circle cx="75.83333333333333" cy="40.79632465543644" r="3" fill="#3b82f6" stroke="white" stroke-width="2"/>
+<circle cx="111.66666666666666" cy="39.778106508875744" r="3" fill="#3b82f6" stroke="white" stroke-width="2"/>
+<circle cx="147.5" cy="41.825842696629216" r="3" fill="#3b82f6" stroke="white" stroke-width="2"/>
+<circle cx="183.33333333333331" cy="41.6125" r="3" fill="#3b82f6" stroke="white" stroke-width="2"/>
+<circle cx="219.16666666666669" cy="44.478897502153316" r="3" fill="#3b82f6" stroke="white" stroke-width="2"/>
+<circle cx="255" cy="45.11316010058676" r="3" fill="#3b82f6" stroke="white" stroke-width="2"/>
+<circle cx="290.83333333333337" cy="55.81699346405229" r="3" fill="#3b82f6" stroke="white" stroke-width="2"/>
+<circle cx="326.66666666666663" cy="50.68412162162162" r="3" fill="#3b82f6" stroke="white" stroke-width="2"/>
+<circle cx="362.5" cy="56.92617449664429" r="3" fill="#3b82f6" stroke="white" stroke-width="2"/>
+<circle cx="398.33333333333337" cy="57.96191819464034" r="3" fill="#3b82f6" stroke="white" stroke-width="2"/>
+<circle cx="434.16666666666663" cy="63.2824427480916" r="3" fill="#3b82f6" stroke="white" stroke-width="2"/>
+<circle cx="470" cy="49.10220994475138" r="5" fill="#f59e0b" stroke="white" stroke-width="2"/>
+      <text x="40" y="115" text-anchor="middle" font-size="10" fill="#9ca3af">25-01</text>
+
+
+<text x="147.5" y="115" text-anchor="middle" font-size="10" fill="#9ca3af">25-04</text>
+
+
+<text x="255" y="115" text-anchor="middle" font-size="10" fill="#9ca3af">25-07</text>
+
+
+<text x="362.5" y="115" text-anchor="middle" font-size="10" fill="#9ca3af">25-10</text>
+
+
+<text x="470" y="115" text-anchor="middle" font-size="10" fill="#9ca3af">26-08</text>
+      <text x="32" y="94" text-anchor="end" font-size="10" fill="#9ca3af">0%</text>
+<text x="32" y="59" text-anchor="end" font-size="10" fill="#9ca3af">50%</text>
+<text x="32" y="38" text-anchor="end" font-size="10" fill="#9ca3af">80%</text>
+<text x="32" y="24" text-anchor="end" font-size="10" fill="#9ca3af">100%</text>
+    </svg>
+        </div>
+      </div>
+      <table style="font-size: 12px;">
+        <tr>
+          <th>Month</th>
+          <th class="num">AMER</th>
+          <th class="num">APJC</th>
+          <th class="num">EMEA</th>
+          <th class="num">Combined</th>
+        </tr>
+        <tr>
+      <td>2025-01</td>
+      <td class="num">83.8%</td>
+      <td class="num">55.6%</td>
+      <td class="num">59.2%</td>
+      <td class="num">66.5%</td>
+    </tr>
+<tr>
+      <td>2025-02</td>
+      <td class="num">86.6%</td>
+      <td class="num">48.3%</td>
+      <td class="num">67.3%</td>
+      <td class="num">70.3%</td>
+    </tr>
+<tr>
+      <td>2025-03</td>
+      <td class="num">83.8%</td>
+      <td class="num">52.4%</td>
+      <td class="num">65.2%</td>
+      <td class="num">71.7%</td>
+    </tr>
+<tr>
+      <td>2025-04</td>
+      <td class="num">80.9%</td>
+      <td class="num">43.8%</td>
+      <td class="num">65.3%</td>
+      <td class="num">68.8%</td>
+    </tr>
+<tr>
+      <td>2025-05</td>
+      <td class="num">81.1%</td>
+      <td class="num">48.4%</td>
+      <td class="num">66.6%</td>
+      <td class="num">69.1%</td>
+    </tr>
+<tr>
+      <td>2025-06</td>
+      <td class="num">76.9%</td>
+      <td class="num">39.6%</td>
+      <td class="num">60.7%</td>
+      <td class="num">65.0%</td>
+    </tr>
+<tr>
+      <td>2025-07</td>
+      <td class="num">71.5%</td>
+      <td class="num">49.5%</td>
+      <td class="num">61.8%</td>
+      <td class="num">64.1%</td>
+    </tr>
+<tr>
+      <td>2025-08</td>
+      <td class="num">43.4%</td>
+      <td class="num">41.9%</td>
+      <td class="num">59.6%</td>
+      <td class="num">48.8%</td>
+    </tr>
+<tr>
+      <td>2025-09</td>
+      <td class="num">52.8%</td>
+      <td class="num">43.8%</td>
+      <td class="num">65.0%</td>
+      <td class="num">56.2%</td>
+    </tr>
+<tr>
+      <td>2025-10</td>
+      <td class="num">45.9%</td>
+      <td class="num">41.7%</td>
+      <td class="num">52.4%</td>
+      <td class="num">47.2%</td>
+    </tr>
+<tr>
+      <td>2025-11</td>
+      <td class="num">25.5%</td>
+      <td class="num">58.3%</td>
+      <td class="num">57.2%</td>
+      <td class="num">45.8%</td>
+    </tr>
+<tr>
+      <td>2025-12</td>
+      <td class="num">22.3%</td>
+      <td class="num">53.4%</td>
+      <td class="num">53.0%</td>
+      <td class="num">38.2%</td>
+    </tr>
+<tr style="background:#f0f9ff;font-weight:600">
+      <td>2026-08 (MTD)</td>
+      <td class="num">61.3%</td>
+      <td class="num">44.7%</td>
+      <td class="num">62.8%</td>
+      <td class="num">58.4%</td>
+    </tr>
+      </table>
+    </div>
+
+    <!-- CSAT Trend -->
+    <div class="panel">
+      <h2><span class="icon">😊</span>CSAT by Month (YTD 2026)</h2>
+      <div style="margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #9ca3af; margin-bottom: 4px;">
+          <span>Jan 2026 (Binary)</span>
+          <span style="color: #dc2626; font-weight: 600;">── 90% Target</span>
+          <span>Aug 2026 (5-Point)</span>
+        </div>
+        <div style="background: #f9fafb; border-radius: 8px; padding: 12px;">
+          <svg width="100%" height="120" viewBox="0 0 500 120" style="overflow:visible">
+      <line x1="40" y1="37.5" x2="470" y2="37.5" stroke="#dc2626" stroke-width="1" stroke-dasharray="5,5" opacity="0.5"/>
+      <polyline points="40,24.032258064516142 101.42857142857142,32.38207547169811 162.85714285714283,29.162303664921453 470,45.32894736842105" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="40" cy="24.032258064516142" r="3" fill="#10b981" stroke="white" stroke-width="2"/>
+<circle cx="101.42857142857142" cy="32.38207547169811" r="3" fill="#10b981" stroke="white" stroke-width="2"/>
+<circle cx="162.85714285714283" cy="29.162303664921453" r="3" fill="#10b981" stroke="white" stroke-width="2"/>
+<circle cx="470" cy="45.32894736842105" r="5" fill="#f59e0b" stroke="white" stroke-width="2"/>
+      <text x="40" y="115" text-anchor="middle" font-size="10" fill="#9ca3af">01</text>
+<text x="101.42857142857142" y="115" text-anchor="middle" font-size="10" fill="#9ca3af">02</text>
+<text x="162.85714285714283" y="115" text-anchor="middle" font-size="10" fill="#9ca3af">03</text>
+<text x="470" y="115" text-anchor="middle" font-size="10" fill="#9ca3af">08</text>
+      <text x="32" y="94" text-anchor="end" font-size="10" fill="#9ca3af">60%</text>
+<text x="32" y="67.75" text-anchor="end" font-size="10" fill="#9ca3af">75%</text>
+<text x="32" y="41.5" text-anchor="end" font-size="10" fill="#9ca3af">90%</text>
+<text x="32" y="24" text-anchor="end" font-size="10" fill="#9ca3af">100%</text>
+    </svg>
+        </div>
+      </div>
+      <table style="font-size: 12px;">
+        <tr>
+          <th>Month</th>
+          <th class="num">AMER</th>
+          <th class="num">APJC</th>
+          <th class="num">EMEA</th>
+          <th class="num">Combined</th>
+        </tr>
+        <tr>
+      <td>2026-01 (binary)</td>
+      <td class="num">95.5</td>
+      <td class="num">97.7</td>
+      <td class="num">100.0</td>
+      <td class="num">97.7</td>
+    </tr>
+<tr>
+      <td>2026-02 (binary)</td>
+      <td class="num">86.8</td>
+      <td class="num">100.0</td>
+      <td class="num">96.6</td>
+      <td class="num">92.9</td>
+    </tr>
+<tr>
+      <td>2026-03 (binary)</td>
+      <td class="num">94.2</td>
+      <td class="num">90.0</td>
+      <td class="num">98.2</td>
+      <td class="num">94.8</td>
+    </tr>
+<tr>
+      <td>2026-04 —</td>
+      <td class="num">—</td>
+      <td class="num">—</td>
+      <td class="num">—</td>
+      <td class="num">—</td>
+    </tr>
+<tr>
+      <td>2026-05 —</td>
+      <td class="num">—</td>
+      <td class="num">—</td>
+      <td class="num">—</td>
+      <td class="num">—</td>
+    </tr>
+<tr>
+      <td>2026-06 —</td>
+      <td class="num">—</td>
+      <td class="num">—</td>
+      <td class="num">—</td>
+      <td class="num">—</td>
+    </tr>
+<tr>
+      <td>2026-07 —</td>
+      <td class="num">—</td>
+      <td class="num">—</td>
+      <td class="num">—</td>
+      <td class="num">—</td>
+    </tr>
+<tr style="background:#f0f9ff;font-weight:600">
+      <td>2026-08 (5-pt)</td>
+      <td class="num">80.0</td>
+      <td class="num">91.7</td>
+      <td class="num">91.7</td>
+      <td class="num">85.5</td>
+    </tr>
+      </table>
+      <div class="narrative">
+        <strong>Methodology note:</strong> Jan–Mar used binary (happy/sad) scale. Apr–Jul had no CSAT data. Aug switched to 5-point scale. Direct month-to-month comparison unreliable.
+      </div>
+    </div>
+
+    <!-- Volume Trend -->
+    <div class="panel">
+      <h2><span class="icon">📊</span>Volume: POps Share of All Closures</h2>
+      <div style="margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #9ca3af; margin-bottom: 4px;">
+          <span>Jan 2026</span>
+          <span></span>
+          <span>Aug 2026 (MTD)</span>
+        </div>
+        <div style="background: #f9fafb; border-radius: 8px; padding: 12px;">
+          <svg width="100%" height="120" viewBox="0 0 500 120" style="overflow:visible">
+      <polyline points="40,60.074999999999996 101.42857142857142,57.449999999999996 162.85714285714283,60.074999999999996 224.28571428571428,52.550000000000004 285.71428571428567,37.14999999999999 347.14285714285717,49.925 408.57142857142856,68.82499999999999 470,41.35" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="40" cy="60.074999999999996" r="3" fill="#8b5cf6" stroke="white" stroke-width="2"/>
+<circle cx="101.42857142857142" cy="57.449999999999996" r="3" fill="#8b5cf6" stroke="white" stroke-width="2"/>
+<circle cx="162.85714285714283" cy="60.074999999999996" r="3" fill="#8b5cf6" stroke="white" stroke-width="2"/>
+<circle cx="224.28571428571428" cy="52.550000000000004" r="3" fill="#8b5cf6" stroke="white" stroke-width="2"/>
+<circle cx="285.71428571428567" cy="37.14999999999999" r="3" fill="#8b5cf6" stroke="white" stroke-width="2"/>
+<circle cx="347.14285714285717" cy="49.925" r="3" fill="#8b5cf6" stroke="white" stroke-width="2"/>
+<circle cx="408.57142857142856" cy="68.82499999999999" r="3" fill="#8b5cf6" stroke="white" stroke-width="2"/>
+<circle cx="470" cy="41.35" r="5" fill="#f59e0b" stroke="white" stroke-width="2"/>
+      <text x="40" y="115" text-anchor="middle" font-size="10" fill="#9ca3af">Jan</text>
+<text x="101.42857142857142" y="115" text-anchor="middle" font-size="10" fill="#9ca3af">Feb</text>
+<text x="162.85714285714283" y="115" text-anchor="middle" font-size="10" fill="#9ca3af">Mar</text>
+<text x="224.28571428571428" y="115" text-anchor="middle" font-size="10" fill="#9ca3af">Apr</text>
+<text x="285.71428571428567" y="115" text-anchor="middle" font-size="10" fill="#9ca3af">May</text>
+<text x="347.14285714285717" y="115" text-anchor="middle" font-size="10" fill="#9ca3af">Jun</text>
+<text x="408.57142857142856" y="115" text-anchor="middle" font-size="10" fill="#9ca3af">Jul</text>
+<text x="470" y="115" text-anchor="middle" font-size="10" fill="#9ca3af">Aug</text>
+      <text x="32" y="94" text-anchor="end" font-size="10" fill="#9ca3af">20%</text>
+<text x="32" y="67.75" text-anchor="end" font-size="10" fill="#9ca3af">35%</text>
+<text x="32" y="41.5" text-anchor="end" font-size="10" fill="#9ca3af">50%</text>
+<text x="32" y="24" text-anchor="end" font-size="10" fill="#9ca3af">60%</text>
+    </svg>
+        </div>
+      </div>
+      <table style="font-size: 12px;">
+        <tr>
+          <th>Month</th>
+          <th class="num">Total Closed</th>
+          <th class="num">POps Closed</th>
+          <th class="num">POps %</th>
+        </tr>
+        <tr>
+        <td>2026-01</td>
+        <td class="num">5,143</td>
+        <td class="num">1,906</td>
+        <td class="num">37.1%</td>
+      </tr>
+<tr>
+        <td>2026-02</td>
+        <td class="num">5,552</td>
+        <td class="num">2,143</td>
+        <td class="num">38.6%</td>
+      </tr>
+<tr>
+        <td>2026-03</td>
+        <td class="num">6,160</td>
+        <td class="num">2,283</td>
+        <td class="num">37.1%</td>
+      </tr>
+<tr>
+        <td>2026-04</td>
+        <td class="num">6,051</td>
+        <td class="num">2,507</td>
+        <td class="num">41.4%</td>
+      </tr>
+<tr>
+        <td>2026-05</td>
+        <td class="num">4,902</td>
+        <td class="num">2,460</td>
+        <td class="num">50.2%</td>
+      </tr>
+<tr>
+        <td>2026-06</td>
+        <td class="num">5,387</td>
+        <td class="num">2,311</td>
+        <td class="num">42.9%</td>
+      </tr>
+<tr>
+        <td>2026-07</td>
+        <td class="num">6,398</td>
+        <td class="num">2,056</td>
+        <td class="num">32.1%</td>
+      </tr>
+<tr style="background:#f0f9ff;font-weight:600">
+        <td>2026-08 (MTD)</td>
+        <td class="num">2,281</td>
+        <td class="num">1,091</td>
+        <td class="num">47.8%</td>
+      </tr>
+      </table>
+      <div class="narrative">
+        <strong>Pattern:</strong> POps share ranges from 32% (July) to 50% (May). YTD average: 41.6%. High variance suggests POps and non-POps queues scale differently.
+      </div>
+    </div>
+
+    <!-- Key Metrics Summary -->
+    <div class="panel">
+      <h2><span class="icon">📋</span>Key Metrics Summary Card</h2>
+      <table style="font-size: 13px;">
+        <tr>
+          <th>Metric</th>
+          <th class="num">Current</th>
+          <th class="num">Target</th>
+          <th class="num">Gap</th>
+          <th>Status</th>
+        </tr>
+        <tr>
+          <td>SLA (Combined)</td>
+          <td class="num highlight">58.4%</td>
+          <td class="num">80%</td>
+          <td class="num">21.6pp</td>
+          <td><span class="badge yellow">At Risk</span></td>
+        </tr>
+        <tr>
+          <td>CSAT (Combined)</td>
+          <td class="num highlight">84.8%</td>
+          <td class="num">90%</td>
+          <td class="num">5.2pp</td>
+          <td><span class="badge green">Good</span></td>
+        </tr>
+        <tr>
+          <td>POps Volume Share</td>
+          <td class="num highlight">47.8%</td>
+          <td class="num">—</td>
+          <td class="num">—</td>
+          <td><span class="badge gray">Tracking</span></td>
+        </tr>
+        <tr>
+          <td>Active Backlog</td>
+          <td class="num highlight">138</td>
+          <td class="num"><30 days</td>
+          <td class="num">5</td>
+          <td><span class="badge yellow">Watch</span></td>
+        </tr>
+      </table>
+      <div class="narrative warning">
+        <strong>Action:</strong> APJC SLA remains 35pp below target at 44.7%. Focus on backlog reduction and response time to hit 80% by end of month.
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 12px;">
+    Auto-generated from Zendesk API · 8/21/2026, 2:49:57 PM · Questions? Ping @mjaruzel
+  </div>
+
+</div>
+</body>
+</html>
