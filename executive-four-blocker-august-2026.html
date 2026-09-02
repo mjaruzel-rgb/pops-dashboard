@@ -232,8 +232,8 @@
   <div class="kpi-bar">
     <div class="kpi-card">
       <div class="label">Volume</div>
-      <div class="value down">1,347</div>
-      <div class="context">−26% vs. 2026 avg <strong>(1,828)</strong></div>
+      <div class="value">2,222</div>
+      <div class="context">On par with 2026 avg <strong>(2,236)</strong></div>
     </div>
     <div class="kpi-card">
       <div class="label">SLA Achievement</div>
@@ -257,7 +257,7 @@
           <span class="icon">📊</span>
           Combined POps Volume — Tickets Solved
         </div>
-        <div class="block-badge red">Lowest YTD</div>
+        <div class="block-badge blue">On Par with Avg</div>
       </div>
       <div class="chart-wrap">
         <canvas id="volumeChart"></canvas>
@@ -303,17 +303,16 @@
       </div>
       <div class="narrative-content">
 
-        <h3>Volume: Structural Decline, Not Just Seasonality</h3>
-        <p>August solved <span class="highlight">1,347 tickets</span>, the <strong>lowest monthly volume of 2026</strong> and 26% below the Jan–Jul average. This is part of a <strong>clear downward trend</strong> since the April peak (2,166). Several factors drove the decline:</p>
+        <h3>Volume: Steady Post-Peak, Not a Decline</h3>
+        <p>August solved <span class="highlight">2,222 POps tickets</span>, essentially <strong>on par with the 2026 average of 2,236</strong>. The month sits in the middle of the pack — higher than January (1,906) and July (2,056), but below the April peak (2,507). Volume has normalized after the hiring surge in Q2, and the team is operating at a sustainable baseline.</p>
         <ul>
-          <li><strong>Summer slowdown:</strong> EMEA and APJC August holidays reduced inbound volume from those regions by 21% and 31% respectively vs. their own averages.</li>
-          <li><strong>Onboarding wave complete:</strong> August saw continued intern onboarding activity, but the bulk of new-hire ticket volume had already peaked in earlier months, reducing repetitive Workday task inquiries.</li>
-          <li><strong>System efficiencies:</strong> Workday self-service adoption and automated greenhouse integrations reduced manually-routed tickets in categories like location updates and comp corrections.</li>
-          <li><strong>Backlog discipline:</strong> The team closed out stale tickets aggressively in late July, artificially inflating July's solve count while reducing August's carryover backlog.</li>
+          <li><strong>Summer effect:</strong> EMEA and APJC August holidays did reduce inbound from those regions, but AMER volume held steady, keeping overall numbers flat.</li>
+          <li><strong>Post-intern season:</strong> The heavy onboarding/offboarding cycle of June–July tapered off, reducing ticket spikes from intern transitions.</li>
+          <li><strong>System efficiencies:</strong> Workday self-service adoption and automated greenhouse integrations continue to deflect manually-routed tickets in categories like location updates and comp corrections.</li>
         </ul>
 
-        <h3>SLA: Speed Improved as Load Lightened</h3>
-        <p>SLA reached <span class="good">58.95%</span> — the <strong>highest of 2026</strong>. The improvement is directly correlated with lower volume: fewer open tickets in queue means faster first-response and resolution times. EMEA led all regions at 66.9%, while APJC remained the weakest at 44.4%, still far below the 80% target.</p>
+        <h3>SLA: Best Month Despite Sustained Volume</h3>
+        <p>SLA reached <span class="good">58.95%</span> — the <strong>highest of 2026</strong>. This is notable because it improved <strong>without</strong> a volume drop; the team got faster while handling a normal caseload. EMEA led all regions at 66.9%, while APJC remained the weakest at 44.4%, still far below the 80% target.</p>
 
         <h3>CSAT: Scale Change Drove Expected Dip</h3>
         <p>CSAT fell to <span class="bad">85.5%</span>, the <strong>lowest recorded month</strong>. However, this was <strong>anticipated</strong>: the team switched from a <strong>binary (2-point) scale</strong> in January–March to a <strong>5-point scale</strong> in August. A 5-point scale captures more granular sentiment, and "good" ratings naturally become harder to earn when neutral and dissatisfied options are available. Rating volume also dropped — only 76 ratings in Aug vs. 200+ in Jan–Mar — so each neutral or bad score carries more statistical weight.</p>
@@ -342,14 +341,14 @@ new Chart(volCtx, {
     labels: months,
     datasets: [{
       label: 'Tickets Solved',
-      data: [1792, 1970, 2031, 2166, 2094, 1806, 1499, 1347],
+      data: [1906, 2143, 2283, 2507, 2460, 2311, 2056, 2222],
       backgroundColor: months.map((_, i) => i === 7 ? augColor : baseColor),
       borderRadius: 6,
       barPercentage: 0.55,
       categoryPercentage: 0.8
     }, {
-      label: '2026 Monthly Avg (1,828)',
-      data: months.map(() => 1828),
+      label: '2026 Monthly Avg (2,236)',
+      data: months.map(() => 2236),
       type: 'line',
       borderColor: '#9ca3af',
       borderDash: [6, 4],
