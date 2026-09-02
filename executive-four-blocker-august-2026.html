@@ -237,12 +237,12 @@
     </div>
     <div class="kpi-card">
       <div class="label">SLA Achievement</div>
-      <div class="value up">58.95%</div>
+      <div class="value up">62.44%</div>
       <div class="context">Best month YTD · <strong>+27%</strong> vs. avg</div>
     </div>
     <div class="kpi-card">
       <div class="label">CSAT Score</div>
-      <div class="value neutral">85.5%</div>
+      <div class="value neutral">86.4%</div>
       <div class="context">−10pp vs. Jan–Mar · <strong>Target: 90%</strong></div>
     </div>
   </div>
@@ -311,10 +311,10 @@
         </ul>
 
         <h3>SLA: Best Month Despite Sustained Volume</h3>
-        <p>SLA reached <span class="good">58.95%</span> — the <strong>highest of 2026</strong>. This is notable because it improved <strong>without</strong> a volume drop; the team got faster while handling a normal caseload. EMEA led all regions at 66.9%, while APJC remained the weakest at 44.4%, still far below the 80% target.</p>
+        <p>SLA reached <span class="good">62.44%</span> — the <strong>highest of 2026</strong>. This is notable because it improved <strong>without</strong> a volume drop; the team got faster while handling a normal caseload. EMEA led all regions at 66.9%, while APJC remained the weakest at 45.48%, still far below the 80% target.</p>
 
         <h3>CSAT: Scale Change Drove Expected Dip</h3>
-        <p>CSAT fell to <span class="bad">85.5%</span>, the <strong>lowest recorded month</strong>. However, this was <strong>anticipated</strong>: the team switched from a <strong>binary (2-point) scale</strong> in January–March to a <strong>5-point scale</strong> in August. A 5-point scale captures more granular sentiment, and "good" ratings naturally become harder to earn when neutral and dissatisfied options are available. Rating volume also dropped — only 76 ratings in Aug vs. 200+ in Jan–Mar — so each neutral or bad score carries more statistical weight.</p>
+        <p>CSAT fell to <span class="bad">86.4%</span>, the <strong>lowest recorded month</strong>. However, this was <strong>anticipated</strong>: the team switched from a <strong>binary (2-point) scale</strong> in January–March to a <strong>5-point scale</strong> in August. A 5-point scale captures more granular sentiment, and "good" ratings naturally become harder to earn when neutral and dissatisfied options are available. Rating volume was lower than Jan–Mar but stable — 169 responses in Aug (1,334 surveys offered) — making each negative score statistically meaningful.</p>
 
       </div>
     </div>
@@ -398,7 +398,7 @@ new Chart(slaCtx, {
     labels: months,
     datasets: [{
       label: 'SLA %',
-      data: [43.1, 41.9, 41.4, 43.9, 46.2, 50.8, 46.0, 58.95],
+      data: [43.1, 41.9, 41.4, 43.9, 46.2, 50.8, 46.0, 62.44],
       borderColor: '#059669',
       backgroundColor: 'rgba(5, 150, 105, 0.06)',
       fill: true,
@@ -459,7 +459,7 @@ new Chart(csatCtx, {
     labels: months,
     datasets: [{
       label: 'CSAT % (Good Ratings)',
-      data: [97.7, 92.9, 94.8, null, null, null, null, 85.5],
+      data: [97.7, 92.9, 94.8, null, null, null, null, 86.4],
       borderColor: accentColor,
       backgroundColor: 'rgba(118, 75, 162, 0.06)',
       fill: true,
